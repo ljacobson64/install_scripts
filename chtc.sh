@@ -1,29 +1,32 @@
 #!/bin/bash
 
-jobs=12
+jobs=`grep -c processor /proc/cpuinfo`
 orig_dir=$PWD
 dist_dir=$orig_dir/dist
 build_dir=$orig_dir/build
 install_dir=$orig_dir/opt
+TMPDIR=$orig_dir/tmp
+TEMP=$TMPDIR
+TMP=$TMPDIR
 mkdir -p $dist_dir $build_dir
 cd $dist_dir
 
 # Download all the tarballs
-wget https://gmplib.org/download/gmp/gmp-6.1.1.tar.bz2
-wget http://www.mpfr.org/mpfr-current/mpfr-3.1.4.tar.gz
-wget ftp://ftp.gnu.org/gnu/mpc/mpc-1.0.3.tar.gz
-wget http://www.netgull.com/gcc/releases/gcc-5.4.0/gcc-5.4.0.tar.gz
-wget https://cmake.org/files/v3.5/cmake-3.5.2.tar.gz
-wget https://www.python.org/ftp/python/2.7.11/Python-2.7.11.tgz
-wget https://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.13/src/hdf5-1.8.13.tar.gz
-wget http://www.netlib.org/lapack/lapack-3.6.1.tgz
-wget https://pypi.python.org/packages/9f/7c/0a33c528164f1b7ff8cf0684cf88c2e733c8ae0119ceca4a3955c7fc059d/setuptools-23.1.0.tar.gz
-wget https://pypi.python.org/packages/b1/51/bd5ef7dff3ae02a2c6047aa18d3d06df2fb8a40b00e938e7ea2f75544cac/Cython-0.24.tar.gz
-wget https://sourceforge.net/projects/numpy/files/NumPy/1.11.1/numpy-1.11.1.tar.gz
-wget https://sourceforge.net/projects/scipy/files/scipy/0.16.1/scipy-0.16.1.tar.gz
-wget https://pypi.python.org/packages/05/cd/8dbb09b835539234bafc6c5fa02452186da9869e44e7489037ef3994471e/numexpr-2.6.0.tar.gz
-wget https://sourceforge.net/projects/pytables/files/pytables/3.2.0/tables-3.2.0.tar.gz
-wget https://pypi.python.org/packages/58/a5/0dc93c3ec33f4e281849523a5a913fa1eea9a3068acfa754d44d88107a44/nose-1.3.7.tar.gz
+wget https://gmplib.org/download/gmp/gmp-6.1.1.tar.bz2 \
+     http://www.mpfr.org/mpfr-current/mpfr-3.1.4.tar.gz \
+     ftp://ftp.gnu.org/gnu/mpc/mpc-1.0.3.tar.gz \
+     http://www.netgull.com/gcc/releases/gcc-5.4.0/gcc-5.4.0.tar.gz \
+     https://cmake.org/files/v3.5/cmake-3.5.2.tar.gz \
+     https://www.python.org/ftp/python/2.7.11/Python-2.7.11.tgz \
+     https://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.13/src/hdf5-1.8.13.tar.gz \
+     http://www.netlib.org/lapack/lapack-3.6.1.tgz \
+     https://pypi.python.org/packages/9f/7c/0a33c528164f1b7ff8cf0684cf88c2e733c8ae0119ceca4a3955c7fc059d/setuptools-23.1.0.tar.gz \
+     https://pypi.python.org/packages/b1/51/bd5ef7dff3ae02a2c6047aa18d3d06df2fb8a40b00e938e7ea2f75544cac/Cython-0.24.tar.gz \
+     https://sourceforge.net/projects/numpy/files/NumPy/1.11.1/numpy-1.11.1.tar.gz \
+     https://sourceforge.net/projects/scipy/files/scipy/0.16.1/scipy-0.16.1.tar.gz \
+     https://pypi.python.org/packages/05/cd/8dbb09b835539234bafc6c5fa02452186da9869e44e7489037ef3994471e/numexpr-2.6.0.tar.gz \
+     https://sourceforge.net/projects/pytables/files/pytables/3.2.0/tables-3.2.0.tar.gz \
+     https://pypi.python.org/packages/58/a5/0dc93c3ec33f4e281849523a5a913fa1eea9a3068acfa754d44d88107a44/nose-1.3.7.tar.gz
 
 # GMP
 name=gmp
@@ -68,11 +71,13 @@ mkdir $name && cd $name
 tar -xzvf $dist_dir/gcc-5.4.0.tar.gz
 ln -s gcc-5.4.0 src
 mkdir bld && cd bld
-../src/configure --with-gmp=$install_dir/gmp \
+../src/configure --enable-languages=c,c++,fortran \
+                 --with-gmp=$install_dir/gmp \
                  --with-mpfr=$install_dir/mpfr \
                  --with-mpc=$install_dir/mpc \
                  --prefix=$install_dir/$name
-make -j $jobs install
+make -j $jobs
+make install
 export PATH=$install_dir/$name/bin:$PATH
 export LD_LIBRARY_PATH=$install_dir/$name/lib:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=$install_dir/$name/lib64:$LD_LIBRARY_PATH
